@@ -1,53 +1,74 @@
 package com.example.practiceactivity
 
-import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.RadioButton
-import android.widget.TextView
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.view.View
+import android.widget.RadioGroup
+import android.widget.Toast
+import com.example.practiceactivity.databinding.ActivityMainBinding
 
-class Register : AppCompatActivity() {
-    lateinit var etEmail: EditText
-    lateinit var etConfPass: EditText
-    private lateinit var etPass: EditText
-    private lateinit var btnSignUp: Button
-    // create Firebase authentication object
+
+class Register : AppCompatActivity(), View.OnClickListener, RadioGroup.OnCheckedChangeListener {
+    private lateinit var binding: ActivityMainBinding
+    private var genderIndex = -1
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        // View Bindings
-        etEmail = findViewById(R.id.password)
-        etConfPass = findViewById(R.id.confirmPassword)
-        etPass = findViewById(R.id.password)
-        btnSignUp = findViewById(R.id.button)
-
-        btnSignUp.setOnClickListener {
-            signUpUser()
-        }
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        binding.button.setOnClickListener(this)
+        binding.RGroup.setOnCheckedChangeListener(this)
     }
-    private fun signUpUser() {
-        val email = etEmail.text.toString()
-        val pass = etPass.text.toString()
-        val confirmPassword = etConfPass.text.toString()
 
-        // check pass
-        if (email.isBlank() || pass.isBlank() || confirmPassword.isBlank()) {
-            Toast.makeText(this, "Email and Password can't be blank", Toast.LENGTH_SHORT).show()
+    override fun onClick(p0: View?) {
+        if (binding.username.text.isEmpty()) {
+            binding.username.error = "Required"
+            return
+        }
+        if (binding.password.text.isEmpty()) {
+            binding.password.error = "Required"
+            return
+        }
+        if (binding.confirmPassword.text.isEmpty()) {
+            binding.confirmPassword.error = "Required"
+            return
+        }
+        if (binding.password.text.toString() != binding.confirmPassword.text.toString()) {
+            binding.confirmPassword.error = "Password are not the same"
+            binding.password.error = "Password are not the same"
+            return
+        }
+        if (binding.firstName.text.isEmpty()) {
+            binding.firstName.error = "Required"
+            return
+        }
+        if (binding.lastName.text.isEmpty()) {
+            binding.lastName.error = "Required"
+            return
+        }
+        if (binding.Age.text.isEmpty()) {
+            binding.Age.error = "Required"
+            return
+        }
+        if (genderIndex == -1) {
+            Toast.makeText(this, "Please specify your sex", Toast.LENGTH_SHORT).show()
             return
         }
 
-        if (pass != confirmPassword) {
-            Toast.makeText(this, "Password and Confirm Password do not match", Toast.LENGTH_SHORT)
-                .show()
-            return
-        }
-        // If all credential are correct
-        // We call createUserWithEmailAndPassword
-        // using auth object and pass the
-        // email and pass in it.
+        val intent = Intent(this,confirm::class.java)
+        intent.putExtra("username",binding.username.text.toString())
+        intent.putExtra("password",binding.password.text.toString())
+        intent.putExtra("firstname",binding.firstName.text.toString())
+        intent.putExtra("lastname",binding.lastName.text.toString())
+        intent.putExtra("age",binding.Age.text.toString())
+        intent.putExtra("genderIndex",genderIndex)
+        startActivity(intent)
+    }
 
+    override fun onCheckedChanged(p0: RadioGroup?, p1: Int) {
+        val radioB = binding.RGroup.findViewById<View>(p1)
+        genderIndex = binding.RGroup.indexOfChild(radioB)
     }
 }
